@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 )
 
 type ServerConfig struct {
@@ -14,7 +15,7 @@ type ServerConfig struct {
 	DB   core.DBConfig `json:"db"`
 }
 
-func initConfig(env string) ServerConfig {
+func initConfig(env string, dir string) ServerConfig {
 	var configName string
 	if env == "production" {
 		configName = "production.json"
@@ -24,8 +25,8 @@ func initConfig(env string) ServerConfig {
 		configName = "development.json"
 	}
 
-	localConfigFile := "./configs/local.json"
-	configFile := "./configs/" + configName
+	localConfigFile := path.Join(dir, "local.json")
+	configFile := path.Join(dir, configName)
 
 	var localObj ServerConfig
 	if _, err := os.Stat(localConfigFile); !os.IsNotExist(err) {
