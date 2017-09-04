@@ -1,11 +1,11 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import "github.com/wen-bing/go-enterprise-web-toolkit/core/db"
 
 type UserProfile struct {
-	gorm.Model
-	Company  string `gorm:"size:255"`
-	Address1 string `gorm:size:1024`
-	Address2 string `gorm:size:1024`
-	Sex      string `gorm:size:16`
+	db.Model
+	Company  string
+	Address1 string
+	Address2 string
+	Sex      string
 }

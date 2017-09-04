@@ -6,10 +6,16 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/wen-bing/go-enterprise-web-toolkit/core"
+	"github.com/wen-bing/go-enterprise-web-toolkit/core/db"
 	"github.com/wen-bing/go-enterprise-web-toolkit/modules/user"
 	"log"
 	"os"
 )
+
+type ServerConfig struct {
+	Port int         `json:"port"`
+	DB   db.DBConfig `json:"db"`
+}
 
 type ApplicationServer struct {
 	modules []core.Module
@@ -18,10 +24,9 @@ type ApplicationServer struct {
 	db      *gorm.DB
 }
 
-func New(env string, configDir string) *ApplicationServer {
+func New(config ServerConfig) *ApplicationServer {
 	s := ApplicationServer{}
-	s.config = initConfig(env, configDir)
-
+	s.config = config
 	s.setupDatabase(s.config.DB)
 
 	//load modules
@@ -41,7 +46,7 @@ func (s *ApplicationServer) setupRouters() {
 	//setup static router
 }
 
-func (s *ApplicationServer) setupDatabase(dbConfig core.DBConfig) {
+func (s *ApplicationServer) setupDatabase(dbConfig db.DBConfig) {
 	dbUrl := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
 		dbConfig.User,
 		dbConfig.Password,

@@ -1,4 +1,4 @@
-package core
+package db
 
 type DBConfig struct {
 	Type     string `json:"type"`

@@ -1,21 +1,16 @@
-package server
+package main
 
 import (
 	"encoding/json"
 	"github.com/fatih/structs"
-	"github.com/wen-bing/go-enterprise-web-toolkit/core"
+	"github.com/wen-bing/go-enterprise-web-toolkit/server"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 )
 
-type ServerConfig struct {
-	Port int           `json:"port"`
-	DB   core.DBConfig `json:"db"`
-}
-
-func initConfig(env string, dir string) ServerConfig {
+func LoadConfig(env string, dir string) server.ServerConfig {
 	var configName string
 	if env == "production" {
 		configName = "production.json"
@@ -28,7 +23,7 @@ func initConfig(env string, dir string) ServerConfig {
 	localConfigFile := path.Join(dir, "local.json")
 	configFile := path.Join(dir, configName)
 
-	var localObj ServerConfig
+	var localObj server.ServerConfig
 	if _, err := os.Stat(localConfigFile); !os.IsNotExist(err) {
 		raw, err2 := ioutil.ReadFile(localConfigFile)
 		if err2 != nil {
@@ -42,7 +37,7 @@ func initConfig(env string, dir string) ServerConfig {
 		}
 	}
 
-	var configObj ServerConfig
+	var configObj server.ServerConfig
 	if _, err := os.Stat(configFile); !os.IsNotExist(err) {
 		raw, err2 := ioutil.ReadFile(configFile)
 		if err2 != nil {
@@ -86,7 +81,5 @@ func initConfig(env string, dir string) ServerConfig {
 			}
 		}
 	}
-
 	return configObj
-
 }

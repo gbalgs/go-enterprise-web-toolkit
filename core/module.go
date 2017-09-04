@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 /**
@@ -13,9 +12,8 @@ db migration
 
 */
 type Module interface {
+	/**
+	Setup router for this module
+	*/
 	SetupRouter(r *gin.RouterGroup)
-	//
-	MigrateSchema(db *gorm.DB)
-	//UpMigration()
-	//DownMigration()
 }
