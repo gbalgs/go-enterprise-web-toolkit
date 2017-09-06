@@ -1,0 +1,1 @@
+delete from user_profiles where id='9a460588922511e780dfb70d0af57ab1';

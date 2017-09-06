@@ -5,9 +5,10 @@ import "strings"
 type Migratable interface {
 	SelectMigrationTableSql() string
 	CreateMigrationTableSql() string
-	GetModuleMigrationStatusSql() string
-	MigrationLogInsertSql() string
-	MigrationLogDeleteSql() string
+	GetLatestMigrationLogSql() string
+	GetMigrationLogsByDateSql() string
+	InsertMigrationLogSql() string
+	DeleteMigrationLogSql() string
 	GetMigrationCommands(string) []string
 }
 
@@ -18,21 +19,24 @@ func (m MysqlMigratable) SelectMigrationTableSql() string {
 }
 
 func (m MysqlMigratable) CreateMigrationTableSql() string {
-	return `CREATE TABLE gewt_migration_log(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	return `CREATE TABLE migration_logs(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	module VARCHAR(255) NOT NULL, version INT, type INT, operation INT, apply_date TIMESTAMP NOT NULL)`
 }
 
-func (m MysqlMigratable) GetModuleMigrationStatusSql() string {
-	return `SELECT id, module, version, type, operation, apply_date
-		FROM gewt_migration_log WHERE module = ? AND apply_date=(SELECT max(date)`
+func (m MysqlMigratable) GetLatestMigrationLogSql() string {
+	return `SELECT module, version, type, operation, apply_date FROM migration_logs WHERE module=? AND type=? AND apply_date=(SELECT max(apply_date))`
 }
 
-func (m MysqlMigratable) MigrationLogInsertSql() string {
-	return "INSERT INTO gewt_migration_log(module, version, type, operation, apply_date) values (?,?,?,?,?)"
+func (m MysqlMigratable) GetMigrationLogsByDateSql() string {
+	return `SELECT module, version, type, operation, apply_date FROM migration_logs WHERE module=? AND type=? AND apply_date>?`
 }
 
-func (m MysqlMigratable) MigrationLogDeleteSql() string {
-	return "DELETE FROM gewt_migration_log WHERE migration_id = ?"
+func (m MysqlMigratable) InsertMigrationLogSql() string {
+	return "INSERT INTO migration_logs(module, version, type, operation, apply_date) values (?,?,?,?,?)"
+}
+
+func (m MysqlMigratable) DeleteMigrationLogSql() string {
+	return "DELETE FROM migration_logs WHERE module=? AND version=? AND type=?"
 }
 
 func (m MysqlMigratable) GetMigrationCommands(sql string) []string {
