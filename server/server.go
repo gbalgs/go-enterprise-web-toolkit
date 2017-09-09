@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -18,10 +19,11 @@ type ServerConfig struct {
 }
 
 type ApplicationServer struct {
-	modules []core.Module
-	config  ServerConfig
-	router  *gin.Engine
-	db      *gorm.DB
+	modules           []core.Module
+	config            ServerConfig
+	router            *gin.Engine
+	db                *gorm.DB
+	jwtAuthMiddleware *jwt.GinJWTMiddleware
 }
 
 func New(config ServerConfig) *ApplicationServer {
@@ -31,8 +33,6 @@ func New(config ServerConfig) *ApplicationServer {
 
 	//load modules
 	s.loadModules()
-
-	//setup modules' db schema
 
 	//set modules' router
 	s.setupRouters()
@@ -64,6 +64,7 @@ func (s *ApplicationServer) setupDatabase(dbConfig db.DBConfig) {
 func (s *ApplicationServer) loadModules() {
 	//user modules
 	userModule := user.New(s.db)
+	s.jwtAuthMiddleware = userModule.GetJWTAuthMiddleware()
 	s.modules = append(s.modules, userModule)
 }
 
@@ -73,12 +74,23 @@ func (s *ApplicationServer) setupModuleRoutersV1() {
 	{
 		//setup each modules router for v1
 		for _, m := range s.modules {
-			m.SetupRouter(v1)
+			m.SetupRouterV1(v1)
 		}
 	}
+
 	//security routers
+	securityV1 := s.router.Group("api/s/v1")
+	securityV1.Use(s.jwtAuthMiddleware.MiddlewareFunc())
+	{
+		//setup each modules router for v1
+		for _, m := range s.modules {
+			m.SetupSecurityRouterV1(securityV1)
+		}
+	}
+
 }
 
 func (s ApplicationServer) Start() {
+	defer s.db.Close()
 	s.router.Run(":8080")
 }

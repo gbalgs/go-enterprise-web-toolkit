@@ -15,5 +15,7 @@ type Module interface {
 	/**
 	Setup router for this module
 	*/
-	SetupRouter(r *gin.RouterGroup)
+	SetupRouterV1(r *gin.RouterGroup)
+
+	SetupSecurityRouterV1(r *gin.RouterGroup)
 }
