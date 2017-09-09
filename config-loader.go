@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/fatih/structs"
+	"github.com/imdario/mergo"
 	"github.com/wen-bing/go-enterprise-web-toolkit/server"
 	"io/ioutil"
 	"log"
@@ -51,35 +51,9 @@ func LoadConfig(env string, dir string) server.ServerConfig {
 		}
 	}
 
-	//merge local to override config object
-	//TODO
-	//refacto to use reflect
-	if !structs.IsZero(localObj) {
-		if localObj.Port != 0 {
-			configObj.Port = localObj.Port
-		}
-
-		if !structs.IsZero(localObj.DB) {
-			if localObj.DB.Port != 0 {
-				configObj.DB.Port = localObj.DB.Port
-			}
-
-			if localObj.DB.Host != "" {
-				configObj.DB.Host = localObj.DB.Host
-			}
-			if localObj.DB.Type != "" {
-				configObj.DB.Type = localObj.DB.Type
-			}
-			if localObj.DB.Name != "" {
-				configObj.DB.Name = localObj.DB.Name
-			}
-			if localObj.DB.User != "" {
-				configObj.DB.User = localObj.DB.User
-			}
-			if localObj.DB.Password != "" {
-				configObj.DB.Password = localObj.DB.Password
-			}
-		}
+	err := mergo.MergeWithOverwrite(&configObj, localObj)
+	if err != nil {
+		log.Printf("Merge config faileD: %v", err)
 	}
 	return configObj
 }

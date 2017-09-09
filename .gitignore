@@ -2,3 +2,4 @@
 go-enterprise-web-toolkit
 vendor/*
 !vendor/vendor.json
+configs/local.json

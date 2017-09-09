@@ -92,5 +92,6 @@ func (s *ApplicationServer) setupModuleRoutersV1() {
 
 func (s ApplicationServer) Start() {
 	defer s.db.Close()
-	s.router.Run(":8080")
+	addr := fmt.Sprintf(":%d", s.config.Port)
+	s.router.Run(addr)
 }
